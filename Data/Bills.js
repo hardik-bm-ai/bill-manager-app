@@ -1,0 +1,51 @@
+export const Bills = [
+  {
+    key: 1,
+    description: 'Dominoes',
+    category: 'Food & Dining',
+    amount: '430',
+    date: '2021-08-02',
+  },
+  {
+    key: 2,
+    description: 'Car wash',
+    category: 'Utility',
+    amount: '500',
+    date: '2021-08-06',
+  },
+  {
+    key: 3,
+    description: 'Amazon',
+    category: 'Shopping',
+    amount: '2030',
+    date: '2021-08-07',
+  },
+  {
+    key: 4,
+    description: 'House rent',
+    category: 'Food & Dining',
+    amount: '3590',
+    date: '2021-08-03',
+  },
+  {
+    key: 5,
+    description: 'Tuition',
+    category: 'Education',
+    amount: '2200',
+    date: '2021-08-12',
+  },
+  {
+    key: 6,
+    description: 'Laundry',
+    category: 'Personal Care',
+    amount: '320',
+    date: '2021-08-14',
+  },
+  {
+    key: 7,
+    description: 'Vacation',
+    category: 'Travel',
+    amount: '3430',
+    date: '2021-08-18',
+  },
+];

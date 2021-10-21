@@ -1,20 +1,26 @@
 import {applyMiddleware, compose, createStore} from 'redux';
 import thunk from 'redux-thunk';
-import {Bills} from './Data/Bills';
+// import {Bills} from './Data/Bills';
 
 const initialState = {
-  bills: [...Bills],
+  bills: [],
   monthly_budget: 0,
   selected: [],
   billBeingEdited: {},
   isEdit: false,
   payableBills: [],
+  isLoading: false,
 };
 
 const middleWare = [thunk];
 
 function BillReducer(state, action) {
   switch (action.type) {
+    case 'SET_BILLS':
+      return {
+        ...state,
+        bills: [...action.payload],
+      };
     case 'ADD_BILL':
       return {
         ...state,
@@ -76,6 +82,18 @@ function BillReducer(state, action) {
       return {
         ...state,
         payableBills: [...action.payload],
+      };
+
+    case 'SET_LOADING':
+      return {
+        ...state,
+        isLoading: true,
+      };
+
+    case 'LOADING_DONE':
+      return {
+        ...state,
+        isLoading: false,
       };
 
     default:

@@ -1,3 +1,22 @@
+export const setBill = Bills => dispatch => {
+  dispatch({
+    type: 'SET_BILLS',
+    payload: Bills,
+  });
+};
+
+export const setLoading = () => dispatch => {
+  dispatch({
+    type: 'SET_LOADING',
+  });
+};
+
+export const doneLoading = () => dispatch => {
+  dispatch({
+    type: 'DONE_LOADING',
+  });
+};
+
 export const addBill = bill => dispatch => {
   dispatch({
     type: 'ADD_BILL',

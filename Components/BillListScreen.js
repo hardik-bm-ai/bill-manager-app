@@ -3,6 +3,10 @@ import {View, FlatList, StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
 import BillComponent from './BillComponent';
 import {Keyboard} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+// import Loader from './LoadingComponent';
+// import Modal from 'react-native-modal';
+
 import {
   TextInput,
   Button,
@@ -31,8 +35,14 @@ const BillListScreen = ({
   deleteBills,
   editPayablesList,
   payableBills,
+  isLoading,
 }) => {
   const [billList, setBillList] = useState(bills);
+  // const [isloading, setIsloading] = useState(false);
+
+  useEffect(() => {
+    setBillList(bills);
+  }, [bills]);
 
   //budget controllers
   const [budget, setBudget] = useState(
@@ -60,6 +70,15 @@ const BillListScreen = ({
   const hideDialog = () => setVisible(false);
   const deleteHandler = () => {
     const updatedBills = billList.filter(bill => !selected.includes(bill.key));
+    const deletedBills = billList.filter(bill => selected.includes(bill.key));
+    deletedBills.forEach(bill => {
+      firestore()
+        .doc('awesome_project/bills')
+        .update({
+          Bills: firestore.FieldValue.arrayRemove({...bill}),
+        });
+    });
+
     if (billList) deleteBills(updatedBills);
     setBillList(updatedBills);
     hideDialog();
@@ -106,12 +125,21 @@ const BillListScreen = ({
   const payHandler = () => {
     let amountLeft = monthly_budget;
     let remainingBills = [];
+    let deletedBills = [];
     for (let i = 0; i < bills.length; i++) {
-      if (payableBills.includes(bills[i].key))
+      if (payableBills.includes(bills[i].key)) {
         amountLeft -= parseInt(bills[i].amount);
-      else remainingBills.push({...bills[i]});
+        deletedBills.push({...bills[i]});
+      } else remainingBills.push({...bills[i]});
     }
     deleteBills(remainingBills);
+    deletedBills.forEach(bill => {
+      firestore()
+        .doc('awesome_project/bills')
+        .update({
+          Bills: firestore.FieldValue.arrayRemove({...bill}),
+        });
+    });
     console.log(remainingBills);
     changeBudget(amountLeft);
     onDismissSnackBar();
@@ -186,6 +214,9 @@ const BillListScreen = ({
           }}>
           Do you Want to pay these ? Otherwise click cancel!
         </Snackbar>
+        {/* <Modal isVisible={isLoading}>
+          <Loader />
+        </Modal> */}
       </View>
     </Provider>
   );
@@ -221,6 +252,7 @@ const mapStateToProps = state => ({
   selected: state.selected,
   monthly_budget: state.monthly_budget,
   payableBills: state.payableBills,
+  isLoading: state.isLoading,
 });
 
 export default connect(mapStateToProps, {

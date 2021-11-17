@@ -4,8 +4,6 @@ import {connect} from 'react-redux';
 import BillComponent from './BillComponent';
 import {Keyboard} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-// import Loader from './LoadingComponent';
-// import Modal from 'react-native-modal';
 
 import {
   TextInput,
@@ -22,6 +20,7 @@ import {
   clearBudget,
   deleteBills,
   editPayablesList,
+  setBill,
 } from '../actions/BillActions';
 
 const BillListScreen = ({
@@ -35,7 +34,7 @@ const BillListScreen = ({
   deleteBills,
   editPayablesList,
   payableBills,
-  isLoading,
+  setBill,
 }) => {
   const [billList, setBillList] = useState(bills);
   // const [isloading, setIsloading] = useState(false);
@@ -105,6 +104,20 @@ const BillListScreen = ({
     return 0;
   }
 
+  //refreshing controller
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  function refreshHandler() {
+    setIsRefreshing(true);
+    async function fetchData() {
+      const billData = await firestore()
+        .collection('awesome_project')
+        .doc('bills')
+        .get()
+        .then(data => setBill(data._data.Bills));
+    }
+    fetchData().then(() => setIsRefreshing(false));
+  }
+
   useEffect(() => {
     const MaxPayableBills = () => {
       let billsList = [...billList];
@@ -147,6 +160,7 @@ const BillListScreen = ({
     setBudget(amountLeft.toString());
   };
 
+  console.log(bills);
   return (
     <Provider>
       <View style={styles.root}>
@@ -179,6 +193,8 @@ const BillListScreen = ({
               }
             />
           )}
+          refreshing={isRefreshing}
+          onRefresh={refreshHandler}
         />
         <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
@@ -214,9 +230,6 @@ const BillListScreen = ({
           }}>
           Do you Want to pay these ? Otherwise click cancel!
         </Snackbar>
-        {/* <Modal isVisible={isLoading}>
-          <Loader />
-        </Modal> */}
       </View>
     </Provider>
   );
@@ -261,4 +274,5 @@ export default connect(mapStateToProps, {
   clearBudget,
   deleteBills,
   editPayablesList,
+  setBill,
 })(BillListScreen);

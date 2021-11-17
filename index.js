@@ -5,6 +5,7 @@ import BillListScreen from './Components/BillListScreen';
 import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
 import {Provider} from 'react-redux';
 import store from './store';
+import NetworkComponent from './Components/NetworkComponent';
 
 const theme = {
   ...DefaultTheme,
@@ -60,8 +61,25 @@ BillListThemedScreen.options = {
   },
 };
 
+const NetworkThemedModal = () => {
+  return (
+    <PaperProvider theme={theme}>
+      <NetworkComponent />
+    </PaperProvider>
+  );
+};
+
+NetworkThemedModal.options = {
+  topBar: {
+    title: {
+      text: 'Alert',
+    },
+  },
+};
+
 Navigation.registerComponent('Home', () => HomeThemedScreen);
 Navigation.registerComponent('List', () => BillListThemedScreen);
+Navigation.registerComponent('NetworkModal', () => NetworkThemedModal);
 
 const mainRoot = {
   root: {
@@ -117,4 +135,16 @@ Navigation.setDefaultOptions({
 
 Navigation.events().registerAppLaunchedListener(async () => {
   Navigation.setRoot(mainRoot);
+});
+
+Navigation.showModal({
+  stack: {
+    children: [
+      {
+        component: {
+          name: 'NetworkModal',
+        },
+      },
+    ],
+  },
 });

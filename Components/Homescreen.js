@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, Platform} from 'react-native';
 import {Navigation} from 'react-native-navigation';
 import {TextInput, Button} from 'react-native-paper';
 import {connect} from 'react-redux';
@@ -11,13 +11,39 @@ import {
   doneLoading,
 } from '../actions/BillActions';
 import firestore from '@react-native-firebase/firestore';
-// import Loader from './LoadingComponent';
-// import Modal from 'react-native-modal';
+import NetInfo from '@react-native-community/netinfo';
+import NetworkComponent from './NetworkComponent';
 
 const initialBill = {
   description: '',
   category: '',
   amount: '',
+};
+
+const Modal = {
+  stack: {
+    children: [
+      {
+        component: {
+          name: 'NetworkModal',
+        },
+      },
+    ],
+  },
+};
+
+const overlay = {
+  component: {
+    name: 'NetworkModal',
+    options: {
+      layout: {
+        componentBackgroundColor: 'transparent',
+      },
+      overlay: {
+        interceptTouchOutside: true,
+      },
+    },
+  },
 };
 
 const HomeScreen = ({
@@ -28,12 +54,10 @@ const HomeScreen = ({
   isEdit,
   editDone,
   setBill,
-  isLoading,
-  setLoading,
-  doneLoading,
 }) => {
   const [data, setData] = useState(isEdit ? billBeingEdited : initialBill);
-  // const [isloading, setIsloading] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+
   const submitHandler = () => {
     if (data.description === '' || data.category === '' || isNaN(data.amount))
       alert('Please enter correct values');
@@ -77,13 +101,24 @@ const HomeScreen = ({
         .collection('awesome_project')
         .doc('bills')
         .get();
-      console.log(billData);
       setBill(billData._data.Bills);
     }
     fetchData();
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected);
+      if (isConnected === false) Navigation.showOverlay(overlay);
+      else Navigation.dismissAllOverlays();
+      if (Platform.OS === 'ios') {
+        console.log('Connection type - ios :', state.type);
+        console.log('Is connected? - ios : ', state.isConnected);
+      } else {
+        console.log('Connection type', state.type);
+        console.log('Is connected?', state.isConnected);
+      }
+    });
     setData(isEdit ? billBeingEdited : initialBill);
-    return () => subscriber(); //eslint-disable-next-line
-  }, []);
+    return () => unsubscribe(); //eslint-disable-next-line
+  }, [isConnected]);
 
   return (
     <View style={styles.root}>
@@ -127,9 +162,6 @@ const HomeScreen = ({
           {isEdit ? 'Edit' : 'Submit'}
         </Button>
       </View>
-      {/* <Modal isVisible={isloading}>
-        <Loader />
-      </Modal> */}
     </View>
   );
 };
